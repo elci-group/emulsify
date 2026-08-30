@@ -1,0 +1,9 @@
+segments:
+  - name: rust_maintainers
+    description: "Maintainers deciding whether and how to consolidate a divergent fork back into a host codebase"
+    pains: ["long-lived forks that are unclear whether they're safe to merge", "manual diffing across many candidate forks"]
+narratives:
+  - capability: "viscosity-based compatibility scoring"
+    narrative: "know whether a fork can be mixed, needs an adapter, should stay independent, or should be rejected — before attempting a merge"
+    audiences: [rust_maintainers]
+    formats: [docs, cli_help]

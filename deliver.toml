@@ -1,0 +1,97 @@
+# Deliverable contract for emulsify.
+
+[[file]]
+path = "Cargo.toml"
+required = true
+
+[[file]]
+path = "src/lib.rs"
+required = true
+forbid_regex = ["TODO", "FIXME", "unimplemented!"]
+
+[[file]]
+path = "src/main.rs"
+required = true
+
+[[file]]
+path = "src/model.rs"
+required = true
+
+[[file]]
+path = "src/extract.rs"
+required = true
+
+[[file]]
+path = "src/similarity.rs"
+required = true
+
+[[file]]
+path = "src/classify.rs"
+required = true
+
+[[file]]
+path = "src/consolidate.rs"
+required = true
+
+[[file]]
+path = "src/report.rs"
+required = true
+
+[[file]]
+path = "src/cli.rs"
+required = true
+
+[[file]]
+path = "src/config.rs"
+required = true
+
+[[file]]
+path = "tests/integration_test.rs"
+required = true
+
+[[file]]
+path = "README.md"
+required = true
+require_regex = ["(?i)nearest.neighbour consolidation", "mix", "emulsify", "suspend", "reject"]
+
+[[file]]
+path = "VERSION"
+required = true
+
+[[file]]
+path = "man/emulsify.1"
+required = true
+
+[[command]]
+name = "cargo build release"
+cmd = ["cargo", "build", "--release"]
+expect_exit = 0
+timeout_secs = 120
+
+[[command]]
+name = "unit tests"
+cmd = ["cargo", "test", "--lib"]
+expect_exit = 0
+timeout_secs = 120
+stdout_contains = ["test result: ok"]
+
+[[command]]
+name = "integration tests"
+cmd = ["cargo", "test", "--test", "integration_test"]
+expect_exit = 0
+timeout_secs = 120
+stdout_contains = ["test result: ok"]
+
+[[command]]
+name = "release binary runs"
+cmd = ["./target/release/emulsify", "--version"]
+expect_exit = 0
+timeout_secs = 30
+stdout_contains = ["emulsify 0.1.0"]
+
+[[command]]
+name = "analyze works on self"
+cmd = ["./target/release/emulsify", "analyze", "./src", "./tests"]
+expect_exit = 0
+timeout_secs = 30
+stdout_contains = ["viscosity analysis"]

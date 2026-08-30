@@ -1,0 +1,40 @@
+purpose: >-
+  Make emulsify's documentation immediately usable by Rust engineers who
+  need to decide whether and how to consolidate divergent forks.
+scope: >-
+  README and operator-facing Markdown. Preserve the viscosity metaphor,
+  the four consolidation states, and the nine compatibility dimensions
+  exactly as named.
+writing_style:
+  tone: Direct, precise, and operational
+  voice: Active voice with emulsify as the subject where useful
+  audience: Rust developers and maintainers weighing fork merges
+  guidelines:
+    - "Lead each document and section with the outcome or decision it supports."
+    - "Preserve the domain vocabulary verbatim: viscosity, watery, medium, oily, immiscible, mix, emulsify, suspend, reject, nearest-neighbour consolidation, consolidation point, interface boundary."
+    - "Preserve every command, path, threshold default (mix 0.75, emulsify 0.50, suspend 0.30), dimension name, and code example exactly."
+    - "Do not claim capabilities the tool does not have: emulsify plans consolidation, it does not execute merges or read git history."
+    - "Keep the Honest limitations section honest; do not soften it."
+    - "Prefer short paragraphs and concrete examples over abstract language."
+formatting_rules:
+  headings: true
+  bullet_points: true
+  numbered_lists: true
+  code_blocks: true
+  max_line_length: 100
+  custom_rules:
+    - Use valid GitHub-flavored Markdown.
+    - Give every fenced code block an appropriate language tag.
+    - Keep the ASCII pipeline diagram (measure → classify → ...) intact.
+global_assets:
+  - path: Cargo.toml
+    asset_type: implementation manifest
+    description: Authoritative crate metadata and dependency stack
+  - path: VERSION
+    asset_type: version file
+    description: Current semantic version
+  - path: deliver.toml
+    asset_type: deliverable contract
+    description: Authoritative acceptance checks and commands
+local_assets: []
+languages: []

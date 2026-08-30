@@ -1,0 +1,12 @@
+traits: [direct, precise, operational]
+trait_signals:
+  direct: [must, do not, does not, will]
+  precise: [exactly, deterministic, verify, weighted]
+  operational: [run, install, configure, measure]
+style:
+  sentence_case_headings: false
+  max_exclamation_marks: 0
+  error_messages:
+    forbid_prefixes: ["Error", "ERROR", "Fatal", "panic"]
+    forbid_numeric_codes: true
+    require_actionable: true

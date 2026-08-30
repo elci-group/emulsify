@@ -1,0 +1,67 @@
+.TH EMULSIFY 1 "2026-08-22" "emulsify 0.1.0" "User Commands"
+.SH NAME
+emulsify \- viscosity-based merge compatibility analysis and nearest-neighbour consolidation planning
+.SH SYNOPSIS
+.B emulsify
+.RI [ OPTIONS ]
+.I COMMAND
+.RI [ ARGS ]
+.SH DESCRIPTION
+Emulsify treats forks as fluids ranked by viscosity (the inverse of
+measured compatibility with the host) and consolidates them at their
+nearest compatible architectural state. Every fork is scored across
+nine dimensions \(em api, types, dependencies, architecture, behaviour,
+tests, ownership, lineage, abstraction \(em and classified into one of
+four states:
+.TP
+.B mix
+direct bind into the host (low viscosity)
+.TP
+.B emulsify
+bind through a consolidation adapter
+.TP
+.B suspend
+keep independently maintained behind an interface boundary
+.TP
+.B reject
+immiscible; do not merge directly
+.SH COMMANDS
+.TP
+.BI analyze " HOST FORK..."
+Measure the viscosity of each fork against the host; prints a summary
+table and per-fork dimension breakdown.
+.TP
+.BI plan " HOST FORK..."
+Produce an ordered nearest-neighbour consolidation plan.
+.TP
+.BI graph " HOST FORK..."
+Print the full pairwise compatibility matrix.
+.TP
+.B init
+Write an example
+.B emulsify.toml
+in the current directory. Refuses to overwrite unless
+.B \-\-force
+is given.
+.SH OPTIONS
+.TP
+.BR \-\-json
+Emit machine-readable JSON instead of text.
+.TP
+.BR \-\-config " " \fIPATH\fR
+Load configuration from
+.IR PATH .
+When absent, ./emulsify.toml is used if it exists; otherwise defaults.
+.TP
+.BR \-h ", " \-\-help
+Show help.
+.TP
+.BR \-V ", " \-\-version
+Show version.
+.SH EXIT STATUS
+0 on success, 1 on error.
+.SH FILES
+./emulsify.toml \(em optional configuration: [weights] per dimension,
+[thresholds] mix/emulsify/suspend compatibility bands.
+.SH SEE ALSO
+git(1)

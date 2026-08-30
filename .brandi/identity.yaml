@@ -1,0 +1,16 @@
+product:
+  name: emulsify
+  tagline: "Viscosity-based merge compatibility analysis"
+  mission: "Give Rust engineers an immediate, actionable answer for how a divergent fork should be handled: mix, emulsify, suspend, or reject."
+  aliases: []
+  former_names: []
+archetype: [engineer, analyst]
+terminology:
+  canonical: {}
+  banned_variants:
+    "nearest neighbor": "nearest-neighbour"
+    "nearest-neighbor": "nearest-neighbour"
+    "neighbor": "neighbour"
+    "behavior": "behaviour"
+    "normalized": "normalised"
+    "normalization": "normalisation"

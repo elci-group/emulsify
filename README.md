@@ -1,3 +1,159 @@
-{
-  "content": "# Decision: Identify how each fork should be handled (mix, emulsify, suspend, reject)\n\n## Outcome: Immediate, actionable compatibility analysis for Rust engineers\n\n**emulsify** provides a viscosity‑based compatibility analysis and a nearest‑neighbour\nconsolidation plan. It does **not** perform merges or read git history.\n\n---\n\n### Decision Support: Pipeline Overview\n\n```\nmeasure → classify → find neighbours → consolidate → validate → bind\n```\n\nThe pipeline produces the information needed to decide whether a fork can be\nmixed directly, requires an adapter, should be kept independent, or must be\nrejected.\n\n---\n\n## Decision: The Four Consolidation States\n\n| state      | movement                     | meaning                                              |\n|------------|------------------------------|------------------------------------------------------|\n| `mix`      | `fork → host`                | low viscosity; directly incorporable                 |\n| `emulsify` | `fork → adapter → host`      | compatible, but requires an intermediate consolidation |\n| `suspend`  | `fork ⇢ host`                | valuable but divergent; keep independent behind an interface |\n| `reject`   | `fork ⛔ host`                | effectively immiscible; do not merge directly        |\n\n---\n\n## Decision: Compatibility Evaluation Across Nine Dimensions\n\nEach fork is scored in **[0, 1]** against the host on the following dimensions:\n\n- **api** — named symbol overlap (functions, types, modules)\n- **types** — struct/enum/class/interface name overlap\n- **dependencies** — declared dependency overlap (Cargo.toml, etc.)\n- **architecture** — directory‑skeleton overlap (depth ≤ 2)\n- **behaviour** — function‑name overlap (the behavioural surface)\n- **tests** — test‑file overlap\n- **ownership** — domain overlap: top‑level divisions *below* conventional roots like `src/`\n- **lineage** — shared ancestry proxy: identical files at identical paths over the union of file sets\n- **abstraction** — trait/interface name overlap\n\nDimensions absent on both sides are reported as `n/a` and excluded from the\nweighted sum rather than scored zero. Weights are configurable and normalised\nautomatically.\n\n---\n\n## Decision: Nearest‑Neighbour Consolidation Planning\n\n*Nearest‑neighbour* refers to the most compatible architectural state, not the\nnearest commit.\n\n1. Repeatedly bind the globally most‑compatible **unbound fork** to its most\n   compatible member (which may be another consolidated fork).\n2. Classify any fork that cannot bind: oily forks **suspend** behind an\n   interface boundary; immiscible forks are **rejected**.\n3. Group suspended forks that mix well with each other and **consolidate** them\n   together, separate from the host.\n\n---\n\n## Decision: Installation\n\n```sh\ncargo install --path .\n```\n\n---\n\n## Decision: Usage – Generate the information you need\n\n```sh\n# Measure every fork's viscosity against the host\nemulsify analyze ./host ./fork-a ./fork-b ./fork-c\n\n# Produce an ordered consolidation plan (most compatible first)\nemulsify plan ./host ./fork-a ./fork-b ./fork-c\n\n# Show the full pairwise compatibility matrix\nemulsify graph ./host ./fork-a ./fork-b\n\n# Machine‑readable JSON output for any command\nemulsify --json plan ./host ./fork-a > plan.json\n```\n\n### Example plan output\n\n```\nConsolidation plan for host — nearest-neighbour bind order\n\n 1. mix      fork-a -> host                            compat 0.94  direct bind\n 2. mix      fork-c -> host via fork-a                 compat 0.95  direct bind\n 3. emulsify fork-b -> host                            compat 0.61  consolidation adapter\n 4. suspend  fork-d <=> host boundary (nearest: fork-b) compat 0.44  keep independent, establish interface\n 5. reject   fork-e                                   compat 0.22  immiscible — do not merge directly\n\nsuspension groups (consolidate together, apart from the host):\n  [fork-f, fork-g]\n```\n\nStep 2 shows a fork that binds via a previously mixed fork because its\ncompatibility with that intermediate state exceeds the direct host score.\n\n---\n\n## Decision: Configuration – Tune thresholds and weights\n\n`emulsify init` writes an example `emulsify.toml`. The binary loads it from the\nworking directory or via `--config`.\n\n```toml\n[weights]\napi = 0.15\ntypes = 0.10\ndependencies = 0.15\narchitecture = 0.15\nbehaviour = 0.10\ntests = 0.10\nownership = 0.05\nlineage = 0.10\nabstraction = 0.10\n\n[thresholds]\nmix = 0.75\nemulsify = 0.50\nsuspend = 0.30\n```\n\nOnly listed weights override defaults; the total is normalised automatically.\n\n---\n\n## Decision: Honest Limitations – What emulsify does **not** do\n\n- Extraction uses deterministic line‑scanning, not full parsing; symbol sets are\n  heuristic surfaces, not semantic models.\n- Behaviour, ownership and lineage are *proxies* (function‑name overlap,\n  domain‑directory overlap, identical‑file overlap). emulsify compares\n  architectural state; it does **not** execute code or read git history.\n- emulsify produces a **plan**, not a merge. You must apply the integration\n  pressure yourself.\n- emulsify is deliberately narrow: deterministic/semi‑deterministic\n  consolidation based on compatibility, viscosity and nearest‑neighbour\n  relationships. Higher‑level synthesis (e.g., Hybreed) is a separate concern.\n\n---\n\n## Decision: Development – Verify the tool works as expected\n\n```sh\ncargo test --lib --tests   # unit + integration suites\ncargo build --release\n```\n\n---\n\n## Decision: License\n\nMIT\n"
-}# emulsify
+# Outcome: Identify how each fork should be handled (mix, emulsify, suspend, reject)
+
+## Outcome: Immediate, actionable compatibility analysis for Rust engineers
+
+**emulsify** provides a viscosity‑based compatibility analysis and a nearest‑neighbour
+consolidation plan. It does **not** perform merges or read git history.
+
+---
+
+## Outcome: Understand the analysis flow – Pipeline Overview
+
+```text
+measure → classify → find neighbours → consolidate → validate → bind
+```
+
+The pipeline yields the data needed to decide whether a fork can be mixed
+directly, needs an adapter, stays independent, or must be rejected.
+
+---
+
+## Outcome: Classify each fork – The Four Consolidation States
+
+| state      | movement                     | meaning                                             |
+|------------|------------------------------|-----------------------------------------------------|
+| `mix`      | `fork → host`                | low viscosity; directly incorporable                |
+| `emulsify` | `fork → adapter → host`      | compatible, but requires an intermediate adapter   |
+| `suspend`  | `fork ⇢ host`                | valuable but divergent; keep independent behind an interface |
+| `reject`   | `fork ⛔ host`                | effectively immiscible; do not merge directly       |
+
+---
+
+## Outcome: Score forks on nine dimensions – Compatibility Evaluation
+
+Each fork receives a score in **[0, 1]** against the host on the following dimensions:
+
+- **api** — named symbol overlap (functions, types, modules)
+- **types** — struct/enum/class/interface name overlap
+- **dependencies** — declared dependency overlap (Cargo.toml, etc.)
+- **architecture** — directory‑skeleton overlap (depth ≤ 2)
+- **behaviour** — function‑name overlap (the behavioural surface)
+- **tests** — test‑file overlap
+- **ownership** — domain overlap below conventional roots like `src/`
+- **lineage** — identical files at identical paths across the union of file sets
+- **abstraction** — trait/interface name overlap
+
+Dimensions absent on both sides are reported as `n/a` and omitted from the weighted
+sum rather than scored zero. Weights are configurable and normalised automatically.
+
+---
+
+## Outcome: Produce a bind order – Nearest‑Neighbour Consolidation Planning
+
+*Nearest‑neighbour* refers to the most compatible architectural state, not the
+nearest commit.
+
+1. Repeatedly bind the globally most‑compatible **unbound fork** to its most
+   compatible member (which may be another consolidated fork).
+2. Classify any fork that cannot bind: oily forks **suspend** behind an
+   interface boundary; immiscible forks are **reject**ed.
+3. Group suspended forks that mix well with each other and **consolidate** them
+   together, separate from the host.
+
+---
+
+## Outcome: Install the tool locally – Installation
+
+```sh
+cargo install --path .
+```
+
+---
+
+## Outcome: Generate the information you need – Usage
+
+```sh
+# Measure every fork's viscosity against the host
+emulsify analyze ./host ./fork-a ./fork-b ./fork-c
+
+# Produce an ordered consolidation plan (most compatible first)
+emulsify plan ./host ./fork-a ./fork-b ./fork-c
+
+# Show the full pairwise compatibility matrix
+emulsify graph ./host ./fork-a ./fork-b
+
+# Machine‑readable JSON output for any command
+emulsify --json plan ./host ./fork-a > plan.json
+```
+
+### Example plan output
+
+```text
+Consolidation plan for host — nearest-neighbour bind order
+
+ 1. mix      fork-a -> host                            compat 0.94  direct bind
+ 2. mix      fork-c -> host via fork-a                 compat 0.95  direct bind
+ 3. emulsify fork-b -> host                            compat 0.61  consolidation adapter
+ 4. suspend  fork-d <=> host boundary (nearest: fork-b) compat 0.44  keep independent, establish interface
+ 5. reject   fork-e                                   compat 0.22  immiscible — do not merge directly
+
+suspension groups (consolidate together, apart from the host):
+  [fork-f, fork-g]
+```
+
+---
+
+## Outcome: Tune thresholds and weights – Configuration
+
+`emulsify init` writes an example `emulsify.toml`. The binary loads it from the
+working directory or via `--config`.
+
+```toml
+[weights]
+api = 0.15
+types = 0.10
+dependencies = 0.15
+architecture = 0.15
+behaviour = 0.10
+tests = 0.10
+ownership = 0.05
+lineage = 0.10
+abstraction = 0.10
+
+[thresholds]
+mix = 0.75
+emulsify = 0.50
+suspend = 0.30
+```
+
+Only listed weights override defaults; the total is normalised automatically.
+
+---
+
+## Outcome: Know what emulsify does **not** do – Honest Limitations
+
+- Extraction uses deterministic line‑scanning, not full parsing; symbol sets are
+  heuristic surfaces, not semantic models.
+- Behaviour, ownership and lineage are *proxies* (function‑name overlap,
+  domain‑directory overlap, identical‑file overlap). emulsify compares
+  architectural state; it does **not** execute code or read git history.
+- emulsify produces a **plan**, not a merge. You must apply the integration
+  pressure yourself.
+- emulsify is deliberately narrow: deterministic/semi‑deterministic
+  consolidation based on compatibility, viscosity and nearest‑neighbour
+  relationships. Higher‑level synthesis (e.g., Hybreed) is a separate concern.
+
+---
+
+## Outcome: Verify the tool works as expected – Development
+
+```sh
+cargo test --lib --tests   # unit + integration suites
+cargo build --release
+```
+
+---
+
+## Outcome: Legal terms – License
+
+MIT
