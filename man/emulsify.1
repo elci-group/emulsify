@@ -37,6 +37,22 @@ Produce an ordered nearest-neighbour consolidation plan.
 .BI graph " HOST FORK..."
 Print the full pairwise compatibility matrix.
 .TP
+.BI analyze\-snapshots " HOST\-SNAPSHOT FORK\-SNAPSHOT..."
+Like
+.BR analyze ,
+but reads bound-snapshot/v1 JSON files produced by a snapshotter instead of
+scanning source directories.
+.TP
+.BI plan\-snapshots " HOST\-SNAPSHOT FORK\-SNAPSHOT..."
+Like
+.BR plan ,
+but reads bound-snapshot/v1 JSON files.
+.TP
+.BI graph\-snapshots " HOST\-SNAPSHOT FORK\-SNAPSHOT..."
+Like
+.BR graph ,
+but reads bound-snapshot/v1 JSON files.
+.TP
 .B init
 Write an example
 .B emulsify.toml
@@ -63,5 +79,36 @@ Show version.
 .SH FILES
 ./emulsify.toml \(em optional configuration: [weights] per dimension,
 [thresholds] mix/emulsify/suspend compatibility bands.
+.SH EXAMPLES
+.TP
+Measure two forks against a host and print the per-dimension breakdown:
+.nf
+
+emulsify analyze ./host ./fork-a ./fork-b
+.fi
+.TP
+Emit a machine-readable consolidation plan:
+.nf
+
+emulsify plan ./host ./fork-a --json
+.fi
+.TP
+Print the pairwise compatibility matrix for three codebases:
+.nf
+
+emulsify graph ./host ./fork-a ./fork-b
+.fi
+.TP
+Analyze from pre-built bound-snapshot/v1 JSON files instead of directories:
+.nf
+
+emulsify analyze-snapshots host.snap.json fork.snap.json
+.fi
+.TP
+Write an example configuration file in the current directory:
+.nf
+
+emulsify init
+.fi
 .SH SEE ALSO
 git(1)
